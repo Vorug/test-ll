@@ -26,6 +26,7 @@ SECRET_KEY = '2jngjo3si&=9hn$1_iijs5gnb)odtwr&tlrfdgl%-ea@_bjp-d'
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
+INTERNAL_IPS = ['127.0.0.1']
 
 
 # Application definition
@@ -39,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # Сторонние приложения
     'bootstrap3',
+    #'debug_toolbar',
     # мои приложения
     'learning_logs',
     'users',
@@ -52,6 +54,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    #my
+    #'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 ROOT_URLCONF = 'learning_log.urls'
@@ -138,11 +142,14 @@ if os.getcwd() == '/app':
     # Разрешены все заголовки хостов.
     ALLOWED_HOSTS = ['secure-reaches-65488.herokuapp.com']
     DEBUG = False
+    INTERNAL_IPS = []
     # Конфигурация статических ресурсов
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     STATIC_ROOT = 'staticfiles'
     STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
-    
+    # cleaning
+    # INSTALLED_APPS.remove('debug_toolbar')
+    # MIDDLEWARE.remove('debug_toolbar.middleware.DebugToolbarMiddleware')
 
 
 

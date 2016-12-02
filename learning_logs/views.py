@@ -1,7 +1,9 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponseRedirect, Http404
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User, AnonymousUser
+from django.db.models import Q
 
 from .models import Topic, Entry
 from .forms import TopicForm, EntryForm
@@ -11,17 +13,20 @@ def index(request):
 	"""Домашняя страница приложения Learning Log"""
 	return render(request, 'learning_logs/index.html')
 
-@login_required
+
 def topics(request):
-	topics = Topic.objects.filter(owner=request.user).order_by('date_added')
+	#topics = Topic.objects.filter(owner=request.user).order_by('date_added')
+	if not request.user.is_anonymous(): topics = Topic.objects.filter(Q(public=1) | Q(owner=request.user)).order_by('date_added')
+	else: topics = Topic.objects.filter(public=1).order_by('date_added')
 	context = {'topics': topics}
 	return render(request, 'learning_logs/topics.html', context)
 
 @login_required
 def topic(request, topic_id):
-	topic = Topic.objects.get(id=topic_id)
+	#topic = Topic.objects.get(id=topic_id) - старый вариант
+	topic = get_object_or_404(Topic, id=topic_id)
 	# Проверка того, что тема принадлежит текущему пользователю.
-	if topic.owner != request.user: raise Http404
+	if topic.owner != request.user and topic.public == 0: raise Http404
 	entries = topic.entry_set.order_by('-date_added')
 	context = {'topic': topic, 'entries': entries}
 	return render(request, 'learning_logs/topic.html', context)
@@ -46,7 +51,8 @@ def new_topic(request):
 @login_required
 def new_entry(request, topic_id):
 	"""Добавляет новую запись по конкретной теме."""
-	topic = Topic.objects.get(id=topic_id)
+	#topic = Topic.objects.get(id=topic_id) - старый вариант
+	topic = get_object_or_404(Topic, id=topic_id)
 	if topic.owner != request.user: raise Http404
 	if request.method != 'POST':
 		# Данные не отправлялись; создается пустая форма.
@@ -65,7 +71,8 @@ def new_entry(request, topic_id):
 @login_required
 def edit_entry(request, entry_id):
 	"""Редактирует существующую запись."""
-	entry = Entry.objects.get(id=entry_id)
+	#entry = Entry.objects.get(id=entry_id) - старый вариант
+	entry = get_object_or_404(Entry, id=entry_id)
 	topic = entry.topic
 	if topic.owner != request.user:	raise Http404
 	if request.method != 'POST':
