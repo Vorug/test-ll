@@ -21,7 +21,7 @@ def topics(request):
 	context = {'topics': topics}
 	return render(request, 'learning_logs/topics.html', context)
 
-@login_required
+
 def topic(request, topic_id):
 	#topic = Topic.objects.get(id=topic_id) - старый вариант
 	topic = get_object_or_404(Topic, id=topic_id)
